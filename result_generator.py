@@ -1,29 +1,26 @@
-import os
-from transformers import BartForConditionalGeneration, BartTokenizer, pipeline
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 
-# Set environment variable to avoid duplicate library issue
-os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+# Paths to the fine-tuned model
+model_path = "./fine_tuned_llama_model"
 
 # Load the fine-tuned model and tokenizer
-model_name = "./fine_tuned_bart_model"  # Path to your fine-tuned model directory
-tokenizer = BartTokenizer.from_pretrained(model_name)
-model = BartForConditionalGeneration.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_path)
+model = AutoModelForCausalLM.from_pretrained(model_path)
 
-# Initialize a text generation pipeline
-qa_pipeline = pipeline("text2text-generation", model=model, tokenizer=tokenizer)
+# Set up the text-generation pipeline
+qa_pipeline = pipeline("text-generation", model=model, tokenizer=tokenizer)
 
-# Define a function to get the generated answer
-def generate_answer(question, context, max_answer_length=200):
-    input_text = f"Question: {question} Context: {context}"
-    result = qa_pipeline(input_text, max_length=max_answer_length, truncation=True)
-    return result[0]['generated_text']
-
-# Example usage
+# Sample context and question for testing
 sample_context = """
-According to section 127 of Indian penal code, Whoever receives any property knowing the same to have been taken in the commission of any of the offences mentioned in sections 125 and 126, shall be punished with imprisonment of either description for a term which may extend to seven years, and shall also be liable to fine and to forfeiture of the property so received.
+According to section 140 of the Indian Penal Code, whoever, not being a soldier, sailor, or airman in the Military, Naval, or Air service of the Government of India, wears any garb or carries any token resembling any garb or token used by such a soldier, sailor, or airman with the intention that it may be believed that he is such a soldier, sailor, or airman, shall be punished with imprisonment of either description for a term which may extend to three months, or with a fine which may extend to five hundred rupees, or with both.
 """
-sample_question = "What is the punishment for Receiving property taken by war or depredation mentioned in sections 125 And 126?"
+sample_question = "What is the punishment for wearing the dress or carrying any token used by a soldier, sailor, or airman with intent that it may be believed that he is such a soldier, sailor, or airman?"
+
+# Input format for the model
+input_text = f"Context: {sample_context} Question: {sample_question} Answer:"
 
 # Generate the answer
-answer = generate_answer(sample_question, sample_context)
-print("Generated Answer:", answer)
+result = qa_pipeline(input_text, max_length=300, do_sample=True, truncation=True)
+
+# Print the generated answer
+print("Generated Answer:", result[0]['generated_text'])
