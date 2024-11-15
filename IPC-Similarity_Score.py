@@ -6,11 +6,11 @@ from scipy.spatial.distance import euclidean
 from sklearn.metrics import jaccard_score
 
 # Load the CSV file
-file_path = r'C:\Users\nehal\Downloads\ipc_sections_copy_with_answers.csv'
+file_path = r'D:\Project\Dataset\Comparative_Analysis_for_Differnt_genai_Model.csv'
 df = pd.read_csv(file_path)
 
 # Ensure required columns are present
-required_columns = ['Punishment', 'Predicted Punishment', 'gpt_neo_answer']
+required_columns = ['Punishment', 'Predicted Punishment', 'gpt_neo_answer','Predicted Punishment Gemini']
 for col in required_columns:
     if col not in df.columns:
         raise ValueError(f"Required column '{col}' is missing in the CSV file.")
@@ -37,19 +37,22 @@ def calculate_euclidean_distance(text1, text2):
 # Apply metrics for each row and store in new columns
 df['Cosine Eval - Llama'] = df.apply(lambda row: calculate_cosine_similarity(str(row['Punishment']), str(row['Predicted Punishment'])), axis=1)
 df['Cosine Eval - Gpt'] = df.apply(lambda row: calculate_cosine_similarity(str(row['Punishment']), str(row['gpt_neo_answer'])), axis=1)
+df['Cosine Eval - Gemini'] = df.apply(lambda row: calculate_cosine_similarity(str(row['Punishment']), str(row['Predicted Punishment Gemini'])), axis=1)
 
 df['Jaccard Eval - Llama'] = df.apply(lambda row: calculate_jaccard_similarity(str(row['Punishment']), str(row['Predicted Punishment'])), axis=1)
 df['Jaccard Eval - Gpt'] = df.apply(lambda row: calculate_jaccard_similarity(str(row['Punishment']), str(row['gpt_neo_answer'])), axis=1)
+df['Jaccard Eval - Gemini'] = df.apply(lambda row: calculate_jaccard_similarity(str(row['Punishment']), str(row['Predicted Punishment Gemini'])), axis=1)
 
 df['Euclidean Eval - Llama'] = df.apply(lambda row: calculate_euclidean_distance(str(row['Punishment']), str(row['Predicted Punishment'])), axis=1)
 df['Euclidean Eval - Gpt'] = df.apply(lambda row: calculate_euclidean_distance(str(row['Punishment']), str(row['gpt_neo_answer'])), axis=1)
+df['Euclidean Eval - Gemini'] = df.apply(lambda row: calculate_euclidean_distance(str(row['Punishment']), str(row['Predicted Punishment Gemini'])), axis=1)
 
 # Print the DataFrame with the new metric columns
 print(df.head())
 
 # Save the updated DataFrame to a new CSV
 # Define the correct output path for your local machine
-output_path = r'C:\Users\nehal\Downloads\ipc_sections_metrics.csv'
+output_path = r'Dataset\Final_ipc_sections_metrics.csv'
 
 df.to_csv(output_path, index=False)
 print(f"Updated CSV with metrics saved to {output_path}")

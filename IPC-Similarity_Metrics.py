@@ -3,11 +3,11 @@ import numpy as np
 from scipy.spatial.distance import cityblock, minkowski, hamming
 
 # Load the CSV file
-file_path = r'C:\Users\nehal\Downloads\ipc_sections_metrics.csv'
+file_path = r'Dataset\Final_ipc_sections_metrics.csv'
 df = pd.read_csv(file_path)
 
 # Ensure required columns are present
-required_columns = ['Punishment', 'Predicted Punishment', 'gpt_neo_answer']
+required_columns = ['Punishment', 'Predicted Punishment', 'gpt_neo_answer','Predicted Punishment Gemini']
 for col in required_columns:
     if col not in df.columns:
         raise ValueError(f"Required column '{col}' is missing in the CSV file.")
@@ -42,12 +42,15 @@ def calculate_hamming_distance(text1, text2):
 # Apply metrics for each row and store in new columns
 df['Manhattan Eval - Llama'] = df.apply(lambda row: calculate_manhattan_distance(str(row['Punishment']), str(row['Predicted Punishment'])), axis=1)
 df['Manhattan Eval - Gpt'] = df.apply(lambda row: calculate_manhattan_distance(str(row['Punishment']), str(row['gpt_neo_answer'])), axis=1)
+df['Manhattan Eval - Gemini'] = df.apply(lambda row: calculate_manhattan_distance(str(row['Punishment']), str(row['Predicted Punishment Gemini'])), axis=1)
 
 df['Minkowski Eval - Llama'] = df.apply(lambda row: calculate_minkowski_distance(str(row['Punishment']), str(row['Predicted Punishment'])), axis=1)
 df['Minkowski Eval - Gpt'] = df.apply(lambda row: calculate_minkowski_distance(str(row['Punishment']), str(row['gpt_neo_answer'])), axis=1)
+df['Minkowski Eval - Gemini'] = df.apply(lambda row: calculate_minkowski_distance(str(row['Punishment']), str(row['Predicted Punishment Gemini'])), axis=1)
 
 df['Hamming Eval - Llama'] = df.apply(lambda row: calculate_hamming_distance(str(row['Punishment']), str(row['Predicted Punishment'])), axis=1)
 df['Hamming Eval - Gpt'] = df.apply(lambda row: calculate_hamming_distance(str(row['Punishment']), str(row['gpt_neo_answer'])), axis=1)
+df['Hamming Eval - Gemini'] = df.apply(lambda row: calculate_hamming_distance(str(row['Punishment']), str(row['Predicted Punishment Gemini'])), axis=1)
 
 # Save the updated DataFrame to the existing output CSV
 df.to_csv(file_path, index=False)
