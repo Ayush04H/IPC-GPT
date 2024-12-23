@@ -100,7 +100,7 @@ In the second stage, the model will be fine-tuned on the dataset, enabling it to
    - After fine-tuning, use `predict.py` to generate answers for new questions.
    - Run the prediction script as follows:
      ```bash
-     python predict.py --question "Your question here"
+     python predict.py --question "Your question here -- Question"
      ```
 
 ## References
