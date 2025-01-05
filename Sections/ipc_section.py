@@ -3,7 +3,7 @@ import google.generativeai as genai
 from docx import Document
 
 # Configure API key
-genai.configure(api_key="")
+genai.configure(api_key="AIzaSyD1erDSk2onVOiPR-lMcpflxsJWJ2-FXHs")
 
 # Create the model
 generation_config = {
