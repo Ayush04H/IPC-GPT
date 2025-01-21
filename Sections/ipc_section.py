@@ -47,4 +47,4 @@ def generate_and_save_ipc_sections(start, end, save_dir=None):
         print(f"Saved content for IPC Section {section_number} to {file_name}")
 
 # Call the function with a desired range and directory
-generate_and_save_ipc_sections(291,295, save_dir="Sections")  # Change range and directory as needed
+generate_and_save_ipc_sections(505,511, save_dir="Sections")  # Change range and directory as needed
