@@ -1,46 +1,64 @@
-from transformers import pipeline
-import docx
+import os
 import pandas as pd
+from docx import Document
 
-def extract_text_from_docx(file_path):
-    doc = docx.Document(file_path)
-    text = ""
-    for paragraph in doc.paragraphs:
-        text += paragraph.text + "\n"
-    return text
+def process_word_file(input_file):
+    # Define the context as a single line
+    context = (
+        "You are a knowledgeable, unbiased, and ethical assistant specializing in legal matters. Always provide accurate and lawful information in a respectful and neutral tone. Your answers should adhere to the principles of legality and fairness, avoiding any harmful, discriminatory, or unethical content. If the question is vague, irrelevant, or beyond the scope of your knowledge, politely clarify or explain why an answer cannot be provided. Ensure all responses align with applicable laws and regulations."
+    )
 
-def generate_qa_pairs(text, qa_model):
-    questions_answers = []
-    chunks = text.split("\n")
-    for chunk in chunks:
-        if chunk.strip():  # Skip empty lines
-            try:
-                input_text = f"generate question: {chunk}"  # Formatting input for question generation
-                result = qa_model(input_text, max_length=512, num_return_sequences=1)
-                question = result[0]["generated_text"]  # Extract the generated question
-                questions_answers.append({"question": question, "answer": chunk})
-            except Exception as e:
-                print(f"Error generating QA for chunk: {e}")
-    return questions_answers
+    # Read the content of the Word document
+    try:
+        document = Document(input_file)
+        content = " ".join([
+            paragraph.text.replace("*", "").replace("** Text**", "").replace("#", "").replace("##", "").strip() 
+            for paragraph in document.paragraphs 
+            if paragraph.text.strip()
+        ])
+    except Exception as e:
+        print(f"Error reading the Word file '{input_file}': {e}")
+        return None
 
-def save_to_csv(data, output_file):
-    df = pd.DataFrame(data)
-    df.to_csv(output_file, index=False)
+    # Extract IPC section number from the document
+    section_number = "{Read IPC Section number}"  # Default placeholder if no section number found
+    for line in content.split("."):
+        if "IPC Section" in line:
+            section_number = line.split("IPC Section")[-1].strip()
+            break
 
-# Main script
-if __name__ == "__main__":
-    docx_file = r"D:\Project\Dataset\docx\2022080523.docx"
-    output_csv = "output.csv"
+    # Construct the question
+    question = f"What does IPC section {section_number} describe? Explain in detail."
 
-    # Step 1: Extract text from .docx
-    document_text = extract_text_from_docx(docx_file)
+    # Combine context, question, and content
+    combined_text = f"<s> [INST] <<SYS>> {context} {question} [/INST] {content} </s>"
 
-    # Step 2: Load a pre-trained QA model
-    qa_pipeline = pipeline("text2text-generation", model="valhalla/t5-base-qg-hl")
+    return combined_text
 
-    # Step 3: Generate questions and answers
-    qa_pairs = generate_qa_pairs(document_text, qa_pipeline)
+def process_all_word_files(folder_path, output_file):
+    # Initialize the CSV file
+    if not os.path.exists(output_file):
+        pd.DataFrame(columns=["text"]).to_csv(output_file, index=False)
 
-    # Step 4: Save to CSV
-    save_to_csv(qa_pairs, output_csv)
-    print(f"QA pairs saved to {output_csv}")
+    # Process each Word file in the folder
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".docx"):
+            input_file = os.path.join(folder_path, filename)
+            print(f"Processing file: {filename}")
+            combined_text = process_word_file(input_file)
+
+            if combined_text:
+                # Append to the CSV file
+                df = pd.DataFrame({"text": [combined_text]})
+                try:
+                    df.to_csv(output_file, mode='a', header=False, index=False)
+                    print(f"Added content from '{filename}' to the CSV file.")
+                except Exception as e:
+                    print(f"Error appending to the CSV file: {e}")
+
+# Specify the folder containing Word files and the output CSV file
+folder_path = "Sections"  # Replace with your actual folder path
+output_file = r"dataset_preparer\Dataset_finetune.csv"
+
+# Run the processing function
+process_all_word_files(folder_path, output_file)
