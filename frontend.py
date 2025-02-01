@@ -1,68 +1,49 @@
-import streamlit as st
-from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
+from peft import AutoPeftModelForCausalLM
+from transformers import AutoTokenizer, TextStreamer
 
-# Load model and tokenizer
-model_path = "./Llama-3.2-3b"
+# Load LoRA fine-tuned model and tokenizer
+model_path = "lora_model"  # Your model folder path
+load_in_4bit = True  # Whether to load in 4-bit precision
+
+# Load the model
+model = AutoPeftModelForCausalLM.from_pretrained(
+    model_path,
+    torch_dtype=torch.float16 if not load_in_4bit else torch.float32,
+    load_in_4bit=load_in_4bit,
+    device_map="auto"
+)
+
+# Load tokenizer
 tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModelForCausalLM.from_pretrained(model_path)
 
-# Ensure model is on the correct device (use GPU if available)
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device)
+# Enable inference mode (if necessary)
+model.eval()
 
-# Function to generate a legal-related answer
-def generate_legal_answer(question, max_length=300):
-    # Predefined legal-specific context (hidden from the user)
-    context = (
-        "You are a knowledgeable, unbiased, and ethical assistant specializing in legal matters. "
-        "Always provide accurate and lawful information in a respectful and neutral tone. "
-        "Your answers should adhere to the principles of legality and fairness, avoiding any harmful, "
-        "discriminatory, or unethical content. If the question is vague, irrelevant, or beyond the scope "
-        "of your knowledge, politely clarify or explain why an answer cannot be provided. "
-        "Ensure all responses align with applicable laws and regulations.\n\n"
-    )
-    
-    # Combine context with the user's question
-    prompt = context + "Question: " + question + "\nAnswer:"
-    
-    # Tokenize the prompt
-    inputs = tokenizer(prompt, return_tensors="pt").to(device)
-    
-    # Generate response
-    with torch.no_grad():
-        output = model.generate(
-            **inputs,
-            max_length=max_length,
-            do_sample=True,
-            top_k=50,
-            top_p=0.95,
-            temperature=0.7
-        )
+# Prepare the prompt
+messages = [
+    {"role": "user", "content": "Under Indian law, what are the penalties for violating traffic rules such as Breaking Signal On red light?"}
+]
 
-    # Decode the generated response
-    response = tokenizer.decode(output[0], skip_special_tokens=True)
-    
-    # Extract and return only the answer part
-    answer_start = response.find("Answer:") + len("Answer:")
-    answer = response[answer_start:].strip()
-    
-    return answer
+# Tokenize input
+inputs = tokenizer.apply_chat_template(
+    messages,
+    tokenize=True,
+    add_generation_prompt=True,  # Must add for generation
+    return_tensors="pt"
+).to("cuda" if torch.cuda.is_available() else "cpu")
 
-# Streamlit UI
-st.title("Legal Assistant - AI-Driven Legal Query Answering")
+# Use a text streamer for efficient streaming output
+text_streamer = TextStreamer(tokenizer, skip_prompt=True)
 
-# Instruction for the user
-st.markdown("### Please enter your legal question below:")
+# Generate response
+output = model.generate(
+    input_ids=inputs,
+    streamer=text_streamer,
+    max_new_tokens=1048,
+    use_cache=True,
+    temperature=0.7,
+    min_p=0.1
+)
 
-# Input from the user
-user_question = st.text_area("Your Question:", placeholder="Enter your legal query here...")
-
-if st.button("Generate Answer"):
-    if user_question.strip():
-        with st.spinner("Generating answer..."):
-            answer = generate_legal_answer(user_question)
-        st.success("Answer Generated!")
-        st.markdown(f"### Generated Answer:\n{answer}")
-    else:
-        st.error("Please enter a valid question!")
+print("Generation Complete!")
