@@ -22,7 +22,7 @@ model.eval()
 
 # Prepare the prompt
 messages = [
-    {"role": "user", "content": "The What is the punishment for Harbouring such an officer, soldier, sailor or airman who has deserted comes under which section and what are the punishment??"}
+    {"role": "user", "content": "What does IPC section 128 state?"}
 ]
 
 # Tokenize input
