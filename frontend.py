@@ -22,7 +22,7 @@ model.eval()
 
 # Prepare the prompt
 messages = [
-    {"role": "user", "content": "Under Indian law, what are the penalties for violating traffic rules such as Breaking Signal On red light?"}
+    {"role": "user", "content": "The What is the punishment for Harbouring such an officer, soldier, sailor or airman who has deserted comes under which section and what are the punishment??"}
 ]
 
 # Tokenize input
@@ -40,9 +40,9 @@ text_streamer = TextStreamer(tokenizer, skip_prompt=True)
 output = model.generate(
     input_ids=inputs,
     streamer=text_streamer,
-    max_new_tokens=1048,
+    max_new_tokens=256,
     use_cache=True,
-    temperature=0.7,
+    temperature=1.0,
     min_p=0.1
 )
 
