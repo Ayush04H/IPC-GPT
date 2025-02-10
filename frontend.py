@@ -22,7 +22,7 @@ model.eval()
 
 # Prepare the prompt
 messages = [
-    {"role": "user", "content": "What does IPC section 128 state?"}
+    {"role": "user", "content": "What is the motor vehicle act?"}
 ]
 
 # Tokenize input

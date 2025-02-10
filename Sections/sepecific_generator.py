@@ -4,7 +4,6 @@ from docx import Document
 
 # Configure API key
 genai.configure(api_key="")
-
 # Create the model
 generation_config = {
     "temperature": 1.05,
@@ -53,8 +52,12 @@ def generate_and_save_ipc_descriptions(sections, save_dir=None):
         response = chat_session.send_message(prompt)
         content = response.text
 
+        # Sanitize the section title for use in the filename
+        safe_section_title = "".join(c if c.isalnum() or c in (' ', '_', '-') else "_" for c in section_title)
+        safe_section_title = safe_section_title[:50]  # Truncate for filename length
+
         # Save to Word document
-        file_name = os.path.join(save_dir, f"IPC Section {section_number} - {section_title[:50]}.docx") # Truncate title for filename
+        file_name = os.path.join(save_dir, f"IPC Section {section_number} - {safe_section_title}.docx")
         document = Document()
         document.add_heading(f"IPC Section {section_number}: {section_title}", level=1)
         document.add_paragraph(content)
@@ -64,37 +67,17 @@ def generate_and_save_ipc_descriptions(sections, save_dir=None):
 
 # Define the list of sections to process
 sections_to_generate = [
-    {'number': 50, 'title': '“Section”.'},
-    {'number': 51, 'title': '“Oath”.'},
-    {'number': 52, 'title': '“Good faith”'},
-    {'number': 52.1, 'title': '“Harbour-“'}, # Corrected section number
-    {'number': 53, 'title': 'Punishments.'},
-    {'number': 53.1, 'title': 'Construction of reference to transportation.'},# Corrected section number
-    {'number': 54, 'title': 'Commutation of sentence of death.'},
-    {'number': 55, 'title': 'Commutation of sentence of imprisonment for life.'},
-    {'number': 55.1, 'title': 'Definition of "appropriate Government".'}, # Corrected section number
-    {'number': 56, 'title': '[Repealed.]'},
-    {'number': 57, 'title': 'Fractions of terms of punishment.'},
-    {'number': 58, 'title': '[Repealed.]'},
-    {'number': 59, 'title': '[Repealed.]'},
-    {'number': 60, 'title': 'Sentence may be (in certain cases of imprisonment) wholly or partly rigorous of simple.'},
-    {'number': 61, 'title': '[Repealed.]'},
-    {'number': 62, 'title': '[Repealed.]'},
-    {'number': 63, 'title': 'Amount of fine.'},
-    {'number': 64, 'title': 'Sentence of imprisonment for non-payment of fine.'},
-    {'number': 65, 'title': 'Limit to imprisonment for non-payment of fine, when imprisonment and fine awardable.'},
-    {'number': 66, 'title': 'Description of imprisonment for non-payment of fine.'},
-    {'number': 67, 'title': 'Imprisonment for non-payment of fine, when offence punishable with fine only.'},
-    {'number': 68, 'title': 'Imprisonment to terminate on payment of fine.'},
-    {'number': 69, 'title': 'Termination of imprisonment on payment of proportional part of fine.'},
-    {'number': 70, 'title': 'Fine leviable within six years, of during imprisonment. Death not to discharge property from liability.'},
-    {'number': 71, 'title': 'Limit of punishment of offence made up of several offences.'},
-    {'number': 72, 'title': 'Punishment of person guilty of one of several offences, the judgment stating that is doubtful of which.'},
-    {'number': 73, 'title': 'Solitary confinement.'},
-    {'number': 74, 'title': 'Limit of solitary confinement.'},
-    {'number': 75, 'title': 'Enhanced punishment for certain offences under Chapter XII or Chapter XVII after previous conviction.'}
+    {'number': 205, 'title': 'False personation for purpose of act or proceeding in suit or prosecution.'},
+    {'number': 206, 'title': 'Fraudulent removal or concealment of property to prevent its seizure as forfeited or in execution.'},
+    {'number': 207, 'title': 'Fraudulent claim to property to prevent its seizure as forfeited or in execution.'},
+    {'number': 208, 'title': 'Fraudulently suffering decree for sum not due.'},
+    {'number': 209, 'title': 'Dishonestly making false claim in Court.'},
+    {'number': 210, 'title': 'Fraudulently obtaining decree for sum not due.'},
+    {'number': 211, 'title': 'False charge of offence made with intent to injure.'},
+    {'number': 212, 'title': 'Harbouring offender.— if a capital offence; if punishable with imprisonment for life, or with imprisonment.'},
+    {'number': 213, 'title': 'Taking gift, etc., to screen an offender from punishment.— if a capital offence; if punishable with imprisonment for life, or with imprisonment.'},
+    {'number': 214, 'title': 'Offering gift or restoration of property in consideration of screening offenderif a capital offence; if punishable with imprisonment for life, or with imprisonment.'}
 ]
-
 # You can now print the list to verify
 # for section in sections_to_generate:
 #     print(f"Section {section['number']}: {section['title']}")
