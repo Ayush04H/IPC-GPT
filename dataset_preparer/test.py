@@ -57,8 +57,8 @@ def process_all_word_files(folder_path, output_file):
                     print(f"Error appending to the CSV file: {e}")
 
 # Specify the folder containing Word files and the output CSV file
-folder_path = "Sections"  # Replace with your actual folder path
-output_file = r"dataset_preparer\Dataset_finetune.csv"
+folder_path = "Sections_2"  # Replace with your actual folder path
+output_file = r"dataset_preparer\Dataset_finetune_newdata.csv"
 
 # Run the processing function
 process_all_word_files(folder_path, output_file)
