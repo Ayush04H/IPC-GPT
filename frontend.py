@@ -3,7 +3,7 @@ from peft import AutoPeftModelForCausalLM
 from transformers import AutoTokenizer, TextStreamer
 
 # Load LoRA fine-tuned model and tokenizer
-model_path = "lora_model"  # Your model folder path
+model_path = "lora_model_rhlf"  # Your model folder path
 load_in_4bit = True  # Whether to load in 4-bit precision
 
 # Load the model
@@ -22,7 +22,8 @@ model.eval()
 
 # Prepare the prompt
 messages = [
-    {"role": "user", "content": "What is the motor vehicle act?"}
+    {"role": "user", "content": "What does IPC section 150: Hiring, or conniving at hiring, of persons to join unlawful assembly describe? Explain in detail."},
+    {"role": "assistant", "content": "An unlawful assembly under IPC Section 150. Hiring, or conniving at hiring, of persons to join unlawful assembly"}
 ]
 
 # Tokenize input
@@ -40,7 +41,7 @@ text_streamer = TextStreamer(tokenizer, skip_prompt=True)
 output = model.generate(
     input_ids=inputs,
     streamer=text_streamer,
-    max_new_tokens=256,
+    max_new_tokens=500,
     use_cache=True,
     temperature=1.0,
     min_p=0.1

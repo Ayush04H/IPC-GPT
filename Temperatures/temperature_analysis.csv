@@ -1,8 +1,0 @@
-				
-		Cosine Eval - Llama	Jaccard Eval - Llama	Euclidean Eval - Llama
-				
-				
-Average When Temperature 1.2		0.10865328	0.024366727	11.12772426
-Average When Temperature 08		0.124489948	0.01007348	11.90217672
-Average  When Temperature 0.5		0.188107255	0.038773424	9.121961022
-Average  When Temperature 0.3		0.156824753	0.037147801	10.35397644
