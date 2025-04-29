@@ -1,0 +1,40 @@
+import fitz  # PyMuPDF
+import csv
+
+def extract_text_from_pdf(pdf_path, start_page, end_page):
+    # Open the PDF file
+    with fitz.open(pdf_path) as pdf:
+        # Ensure the page range is within bounds
+        if start_page < 1 or end_page > pdf.page_count or start_page > end_page:
+            raise ValueError(f"Page range {start_page}-{end_page} is out of bounds. The PDF has {pdf.page_count} pages.")
+        
+        # Extract text from each page in the specified range
+        page_texts = []
+        for page_num in range(start_page - 1, end_page):  # Pages are 0-indexed in PyMuPDF
+            page = pdf[page_num]
+            text = page.get_text("text")
+            page_texts.append(text)
+    
+    return page_texts
+
+def save_text_to_csv(page_texts, csv_path):
+    # Write each page's text as a new row in the CSV file
+    with open(csv_path, mode="w", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Page Number", "Page Content"])  # Add headers
+        for i, text in enumerate(page_texts, start=1):
+            writer.writerow([i, text])
+
+# Define PDF file path, page range to extract, and output CSV file path
+pdf_path = "D:/Project/Dataset/IPC-Dataset_PDF.pdf"
+start_page = 1  # Start of the page range
+end_page = 50    # End of the page range
+csv_path = "D:/Project/Dataset/raw_data.csv"  # Output CSV file path
+
+# Extract text and save it to CSV
+try:
+    page_texts = extract_text_from_pdf(pdf_path, start_page, end_page)
+    save_text_to_csv(page_texts, csv_path)
+    print(f"Text from pages {start_page} to {end_page} of '{pdf_path}' has been saved to '{csv_path}'.")
+except ValueError as e:
+    print(e)
