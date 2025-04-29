@@ -1,4 +1,4 @@
-# Project Title: Fine-Tuning Language Models for Medical and Legal Question-Answering
+# Project Title: Fine-Tuning Language Models for Legal Question-Answering
 
 ## Overview
 This project aims to fine-tune large language models, particularly Meta’s Llama-3B, for the task of question-answering in medical and legal contexts. The first stage focuses on analyzing dataset requirements, selecting the appropriate model, and evaluating generated answers using various similarity metrics. The second stage, currently in progress, will involve fine-tuning and deploying the model.
